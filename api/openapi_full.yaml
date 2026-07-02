@@ -1,0 +1,1931 @@
+openapi: 3.0.3
+info:
+  title: C2S API
+  version: 1.0.0
+  description: |
+    C2S (Content Creator to Sponsor) production-oriented API specification.
+    Focused on creator sponsorship workflows for Bangladesh and expatriate communities in the Middle East.
+servers:
+  - url: https://api.c2s.example.com/api/v1
+    description: Production
+  - url: https://staging-api.c2s.example.com/api/v1
+    description: Staging
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+  - name: Users
+  - name: Organizations
+  - name: Creators
+  - name: Sponsors
+  - name: Agencies
+  - name: Campaigns
+  - name: Proposals
+  - name: Contracts
+  - name: Payments
+  - name: Milestones
+  - name: Messaging
+  - name: Notifications
+  - name: Admin
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    RequestIdHeader:
+      in: header
+      name: X-Request-Id
+      required: false
+      schema:
+        type: string
+    IdempotencyKeyHeader:
+      in: header
+      name: Idempotency-Key
+      required: false
+      schema:
+        type: string
+    AcceptLanguageHeader:
+      in: header
+      name: Accept-Language
+      required: false
+      schema:
+        type: string
+        example: en
+    PageParam:
+      in: query
+      name: page
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSizeParam:
+      in: query
+      name: pageSize
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    SearchParam:
+      in: query
+      name: q
+      schema:
+        type: string
+  schemas:
+    Meta:
+      type: object
+      properties:
+        requestId:
+          type: string
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+    ErrorDetail:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    ApiSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+        meta:
+          $ref: '#/components/schemas/Meta'
+        error:
+          nullable: true
+    ApiError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        data:
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+        error:
+          $ref: '#/components/schemas/Error'
+    RoleCode:
+      type: string
+      enum: [creator, sponsor_owner, sponsor_manager, agency_owner, agency_manager, agency_finance, admin_super, admin_ops, admin_compliance, admin_support, admin_finance, admin_trust_safety]
+    LocaleCode:
+      type: string
+      enum: [en, bn, ar]
+    RegisterRequest:
+      type: object
+      required: [email, password, roleIntent]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        roleIntent:
+          type: string
+          enum: [creator, sponsor, agency]
+        locale:
+          $ref: '#/components/schemas/LocaleCode'
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        deviceId:
+          type: string
+    OAuthLoginRequest:
+      type: object
+      required: [providerToken]
+      properties:
+        providerToken:
+          type: string
+        deviceId:
+          type: string
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+    AuthUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleCode'
+    AuthResponseData:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+        user:
+          $ref: '#/components/schemas/AuthUser'
+    ProfileResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        preferredLocale:
+          $ref: '#/components/schemas/LocaleCode'
+        accountStatus:
+          type: string
+    OrganizationCreateRequest:
+      type: object
+      required: [orgType, legalName, countryCode]
+      properties:
+        orgType:
+          type: string
+          enum: [sponsor, agency]
+        legalName:
+          type: string
+        tradeName:
+          type: string
+        countryCode:
+          type: string
+        websiteUrl:
+          type: string
+          format: uri
+          nullable: true
+    CreatorProfileCreateRequest:
+      type: object
+      required: [nichePrimary, currencyCode]
+      properties:
+        headline:
+          type: string
+        nichePrimary:
+          type: string
+        nicheSecondary:
+          type: string
+        audienceSummary:
+          type: string
+        minRate:
+          type: number
+          format: double
+        maxRate:
+          type: number
+          format: double
+        currencyCode:
+          type: string
+        visibility:
+          type: string
+          enum: [public, private, invite_only]
+    CreatorSearchItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        displayName:
+          type: string
+        nichePrimary:
+          type: string
+        platforms:
+          type: array
+          items:
+            type: string
+        followers:
+          type: integer
+        engagementRate:
+          type: number
+        matchScore:
+          type: integer
+        matchReasons:
+          type: array
+          items:
+            type: string
+    CampaignCreateRequest:
+      type: object
+      required: [title, objective, description, visibility, totalBudget, currencyCode]
+      properties:
+        title:
+          type: string
+        objective:
+          type: string
+        description:
+          type: string
+        visibility:
+          type: string
+          enum: [public, invite_only, private]
+        totalBudget:
+          type: number
+        currencyCode:
+          type: string
+        proposalDeadline:
+          type: string
+          format: date-time
+          nullable: true
+        marketCountryCodes:
+          type: array
+          items:
+            type: string
+        targetLanguages:
+          type: array
+          items:
+            type: string
+        requiresEscrow:
+          type: boolean
+        targetFilters:
+          type: object
+          additionalProperties: true
+        kpiTargets:
+          type: object
+          additionalProperties: true
+    CampaignResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        status:
+          type: string
+        visibility:
+          type: string
+        totalBudget:
+          type: number
+        currencyCode:
+          type: string
+    ProposalCreateRequest:
+      type: object
+      required: [proposedTotal, currencyCode]
+      properties:
+        proposedTotal:
+          type: number
+        currencyCode:
+          type: string
+        message:
+          type: string
+        termsSummary:
+          type: object
+          additionalProperties: true
+    ProposalResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        proposedTotal:
+          type: number
+        currencyCode:
+          type: string
+        message:
+          type: string
+          nullable: true
+    ContractResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        signedAt:
+          type: string
+          format: date-time
+          nullable: true
+        contractTerms:
+          type: object
+          additionalProperties: true
+    EscrowFundRequest:
+      type: object
+      required: [gateway, amount, currencyCode]
+      properties:
+        gateway:
+          type: string
+          enum: [sslcommerz, stripe]
+        amount:
+          type: number
+        currencyCode:
+          type: string
+    DeliverableSubmitRequest:
+      type: object
+      properties:
+        notes:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              itemType:
+                type: string
+                enum: [file, url, text]
+              fileId:
+                type: string
+                format: uuid
+                nullable: true
+              externalUrl:
+                type: string
+                format: uri
+                nullable: true
+              textContent:
+                type: string
+                nullable: true
+    MessageCreateRequest:
+      type: object
+      properties:
+        body:
+          type: string
+        attachmentFileIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+    NotificationPreferenceUpdateRequest:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              eventCode:
+                type: string
+              inAppEnabled:
+                type: boolean
+              emailEnabled:
+                type: boolean
+              pushEnabled:
+                type: boolean
+              smsEnabled:
+                type: boolean
+              whatsappEnabled:
+                type: boolean
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      parameters:
+        - $ref: '#/components/parameters/RequestIdHeader'
+        - $ref: '#/components/parameters/AcceptLanguageHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered
+        '409':
+          description: Duplicate user
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login user with email/password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AuthResponseData'
+  /auth/oauth/{provider}:
+    post:
+      tags: [Auth]
+      summary: Login via OAuth provider
+      parameters:
+        - in: path
+          name: provider
+          required: true
+          schema:
+            type: string
+            enum: [google, facebook, apple]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuthLoginRequest'
+      responses:
+        '200':
+          description: Authenticated
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Token refreshed
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout current session
+      responses:
+        '200':
+          description: Logged out
+  /auth/sessions:
+    get:
+      tags: [Auth]
+      summary: List active sessions
+      responses:
+        '200':
+          description: Session list
+  /auth/sessions/{sessionId}:
+    delete:
+      tags: [Auth]
+      summary: Revoke session
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Session revoked
+  /auth/2fa/setup:
+    post:
+      tags: [Auth]
+      summary: Start 2FA setup
+      responses:
+        '200':
+          description: 2FA challenge created
+  /auth/2fa/verify:
+    post:
+      tags: [Auth]
+      summary: Verify 2FA setup or challenge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+      responses:
+        '200':
+          description: 2FA verified
+  /me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ProfileResponse'
+    patch:
+      tags: [Users]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated
+  /me/onboarding:
+    get:
+      tags: [Users]
+      summary: Get onboarding state
+      responses:
+        '200':
+          description: Onboarding state
+  /organizations:
+    post:
+      tags: [Organizations]
+      summary: Create organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationCreateRequest'
+      responses:
+        '201':
+          description: Organization created
+  /organizations/{id}:
+    get:
+      tags: [Organizations]
+      summary: Get organization
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Organization details
+    patch:
+      tags: [Organizations]
+      summary: Update organization
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated
+  /organizations/{id}/invite:
+    post:
+      tags: [Organizations]
+      summary: Invite organization member
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, roleCode]
+              properties:
+                email:
+                  type: string
+                  format: email
+                roleCode:
+                  type: string
+      responses:
+        '201':
+          description: Invitation created
+  /organizations/{id}/members:
+    get:
+      tags: [Organizations]
+      summary: List organization members
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Member list
+  /creators/profile:
+    post:
+      tags: [Creators]
+      summary: Create creator profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatorProfileCreateRequest'
+      responses:
+        '201':
+          description: Creator profile created
+  /creators/me:
+    get:
+      tags: [Creators]
+      summary: Get own creator profile
+      responses:
+        '200':
+          description: Creator profile
+    patch:
+      tags: [Creators]
+      summary: Update own creator profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated
+  /creators/{creatorId}:
+    get:
+      tags: [Creators]
+      summary: Get creator by id
+      parameters:
+        - in: path
+          name: creatorId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Creator detail
+  /creators/search:
+    get:
+      tags: [Creators]
+      summary: Search creators
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - in: query
+          name: platform
+          schema:
+            type: string
+        - in: query
+          name: niche
+          schema:
+            type: string
+        - in: query
+          name: country
+          schema:
+            type: string
+        - in: query
+          name: verified
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CreatorSearchItem'
+  /creators/me/platform-accounts:
+    post:
+      tags: [Creators]
+      summary: Add platform account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [platform, handle]
+              properties:
+                platform:
+                  type: string
+                handle:
+                  type: string
+                profileUrl:
+                  type: string
+                  format: uri
+      responses:
+        '201':
+          description: Created
+  /creators/me/platform-accounts/{id}:
+    patch:
+      tags: [Creators]
+      summary: Update platform account
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Creators]
+      summary: Remove platform account
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Deleted
+  /creators/me/portfolio:
+    post:
+      tags: [Creators]
+      summary: Add portfolio item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                contentUrl:
+                  type: string
+                  format: uri
+                  nullable: true
+                fileId:
+                  type: string
+                  format: uuid
+                  nullable: true
+      responses:
+        '201':
+          description: Created
+  /creators/me/rate-cards:
+    post:
+      tags: [Creators]
+      summary: Create rate card
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [platform, contentType, packageName, price, currencyCode]
+              properties:
+                platform:
+                  type: string
+                contentType:
+                  type: string
+                packageName:
+                  type: string
+                price:
+                  type: number
+                currencyCode:
+                  type: string
+      responses:
+        '201':
+          description: Created
+  /creators/me/rate-cards/{id}:
+    patch:
+      tags: [Creators]
+      summary: Update rate card
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Creators]
+      summary: Delete rate card
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Deleted
+  /creators/me/verification:
+    post:
+      tags: [Creators]
+      summary: Submit creator verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documentFileIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '201':
+          description: Verification submitted
+  /creators/me/recommendations:
+    get:
+      tags: [Creators]
+      summary: Get campaign recommendations for creator
+      responses:
+        '200':
+          description: Recommendations
+  /sponsors/profile:
+    post:
+      tags: [Sponsors]
+      summary: Create sponsor profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '201':
+          description: Created
+    patch:
+      tags: [Sponsors]
+      summary: Update sponsor profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated
+  /agencies/profile:
+    post:
+      tags: [Agencies]
+      summary: Create agency profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '201':
+          description: Created
+    patch:
+      tags: [Agencies]
+      summary: Update agency profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated
+  /agencies/roster:
+    get:
+      tags: [Agencies]
+      summary: List agency roster
+      responses:
+        '200':
+          description: Roster list
+  /agencies/roster/{creatorId}:
+    post:
+      tags: [Agencies]
+      summary: Add creator to agency roster
+      parameters:
+        - in: path
+          name: creatorId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: Added
+    delete:
+      tags: [Agencies]
+      summary: Remove creator from agency roster
+      parameters:
+        - in: path
+          name: creatorId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Removed
+  /campaigns:
+    get:
+      tags: [Campaigns]
+      summary: List campaigns
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Campaign list
+    post:
+      tags: [Campaigns]
+      summary: Create campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignCreateRequest'
+      responses:
+        '201':
+          description: Campaign created
+  /campaigns/{id}:
+    get:
+      tags: [Campaigns]
+      summary: Get campaign
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Campaign detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CampaignResponse'
+    patch:
+      tags: [Campaigns]
+      summary: Update campaign
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated
+  /campaigns/{id}/publish:
+    post:
+      tags: [Campaigns]
+      summary: Publish campaign
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Published
+  /campaigns/{id}/archive:
+    post:
+      tags: [Campaigns]
+      summary: Archive campaign
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Archived
+  /campaigns/{id}/invites:
+    post:
+      tags: [Campaigns]
+      summary: Invite creators to campaign
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                creatorIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                message:
+                  type: string
+      responses:
+        '201':
+          description: Invites sent
+    get:
+      tags: [Campaigns]
+      summary: List campaign invites
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Invite list
+  /campaigns/{id}/proposals:
+    get:
+      tags: [Campaigns]
+      summary: List campaign proposals
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Proposal list
+    post:
+      tags: [Campaigns]
+      summary: Submit proposal to campaign
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposalCreateRequest'
+      responses:
+        '201':
+          description: Proposal submitted
+  /proposals/{id}:
+    get:
+      tags: [Proposals]
+      summary: Get proposal
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Proposal detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ProposalResponse'
+    patch:
+      tags: [Proposals]
+      summary: Update draft proposal
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated
+  /proposals/{id}/negotiate:
+    post:
+      tags: [Proposals]
+      summary: Negotiate proposal terms
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payload:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: Negotiation event recorded
+  /proposals/{id}/accept:
+    post:
+      tags: [Proposals]
+      summary: Accept proposal and generate contract
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Proposal accepted
+  /proposals/{id}/reject:
+    post:
+      tags: [Proposals]
+      summary: Reject proposal
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Proposal rejected
+  /proposals/{id}/withdraw:
+    post:
+      tags: [Proposals]
+      summary: Withdraw proposal
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Proposal withdrawn
+  /contracts/{id}:
+    get:
+      tags: [Contracts]
+      summary: Get contract
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Contract detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ContractResponse'
+  /contracts/{id}/sign:
+    post:
+      tags: [Contracts]
+      summary: Sign or accept contract
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Contract signed
+  /contracts/{id}/milestones:
+    get:
+      tags: [Contracts]
+      summary: List contract milestones
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Milestone list
+  /contracts/{id}/amendments:
+    post:
+      tags: [Contracts]
+      summary: Create contract amendment request
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payload:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '201':
+          description: Amendment requested
+  /contracts/{id}/escrow/fund:
+    post:
+      tags: [Payments]
+      summary: Fund contract escrow
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/IdempotencyKeyHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EscrowFundRequest'
+      responses:
+        '200':
+          description: Funding initiated
+  /contracts/{id}/escrow:
+    get:
+      tags: [Payments]
+      summary: Get escrow summary
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Escrow detail
+  /payments:
+    get:
+      tags: [Payments]
+      summary: List payments
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Payment list
+  /payments/{id}:
+    get:
+      tags: [Payments]
+      summary: Get payment detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Payment detail
+  /wallet/ledger:
+    get:
+      tags: [Payments]
+      summary: List ledger records for current scope
+      responses:
+        '200':
+          description: Ledger list
+  /payout-accounts:
+    post:
+      tags: [Payments]
+      summary: Add payout account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [provider, accountType, countryCode, currencyCode]
+              properties:
+                provider:
+                  type: string
+                accountType:
+                  type: string
+                countryCode:
+                  type: string
+                currencyCode:
+                  type: string
+                metadata:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '201':
+          description: Payout account added
+    get:
+      tags: [Payments]
+      summary: List payout accounts
+      responses:
+        '200':
+          description: Payout accounts
+  /payout-accounts/{id}:
+    patch:
+      tags: [Payments]
+      summary: Update payout account
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated
+  /milestones/{id}/submit-deliverable:
+    post:
+      tags: [Milestones]
+      summary: Submit deliverable for milestone
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliverableSubmitRequest'
+      responses:
+        '201':
+          description: Deliverable submitted
+  /milestones/{id}/deliverables:
+    get:
+      tags: [Milestones]
+      summary: List deliverables for milestone
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Deliverable list
+  /milestones/{id}/approve:
+    post:
+      tags: [Milestones]
+      summary: Approve milestone deliverable
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Milestone approved
+  /milestones/{id}/request-changes:
+    post:
+      tags: [Milestones]
+      summary: Request changes for milestone deliverable
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Changes requested
+  /milestones/{id}/release:
+    post:
+      tags: [Milestones]
+      summary: Release milestone funds
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/IdempotencyKeyHeader'
+      responses:
+        '200':
+          description: Release initiated
+  /milestones/{id}/dispute:
+    post:
+      tags: [Milestones]
+      summary: Open dispute for milestone
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reasonCode, description]
+              properties:
+                reasonCode:
+                  type: string
+                description:
+                  type: string
+                evidenceFileIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '201':
+          description: Dispute opened
+  /conversations:
+    get:
+      tags: [Messaging]
+      summary: List conversations
+      responses:
+        '200':
+          description: Conversation list
+    post:
+      tags: [Messaging]
+      summary: Create conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contextType:
+                  type: string
+                contextId:
+                  type: string
+                  format: uuid
+                  nullable: true
+                participantUserIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '201':
+          description: Conversation created
+  /conversations/{id}/messages:
+    get:
+      tags: [Messaging]
+      summary: List messages in conversation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Message list
+    post:
+      tags: [Messaging]
+      summary: Send message in conversation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreateRequest'
+      responses:
+        '201':
+          description: Message sent
+  /conversations/{id}/attachments/presign:
+    post:
+      tags: [Messaging]
+      summary: Create signed upload for attachment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fileName:
+                  type: string
+                mimeType:
+                  type: string
+                fileSize:
+                  type: integer
+      responses:
+        '200':
+          description: Signed upload details
+  /conversations/{id}/read:
+    post:
+      tags: [Messaging]
+      summary: Mark conversation as read
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Marked as read
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: List notifications
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Notification list
+  /notifications/{id}/read:
+    post:
+      tags: [Notifications]
+      summary: Mark notification as read
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Marked as read
+  /notifications/read-all:
+    post:
+      tags: [Notifications]
+      summary: Mark all notifications as read
+      responses:
+        '200':
+          description: All read
+  /notification-preferences:
+    get:
+      tags: [Notifications]
+      summary: Get notification preferences
+      responses:
+        '200':
+          description: Preferences
+    patch:
+      tags: [Notifications]
+      summary: Update notification preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferenceUpdateRequest'
+      responses:
+        '200':
+          description: Preferences updated
+  /admin/users:
+    get:
+      tags: [Admin]
+      summary: List users for admin
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - $ref: '#/components/parameters/SearchParam'
+      responses:
+        '200':
+          description: User list
+  /admin/users/{id}/suspend:
+    post:
+      tags: [Admin]
+      summary: Suspend user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User suspended
+  /admin/users/{id}/restore:
+    post:
+      tags: [Admin]
+      summary: Restore user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User restored
+  /admin/verifications:
+    get:
+      tags: [Admin]
+      summary: List verification requests
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Verification list
+  /admin/verifications/{id}/approve:
+    post:
+      tags: [Admin]
+      summary: Approve verification request
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Verification approved
+  /admin/verifications/{id}/reject:
+    post:
+      tags: [Admin]
+      summary: Reject verification request
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reviewNotes:
+                  type: string
+      responses:
+        '200':
+          description: Verification rejected
+  /admin/disputes:
+    get:
+      tags: [Admin]
+      summary: List disputes
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Dispute list
+  /admin/disputes/{id}/resolve:
+    post:
+      tags: [Admin]
+      summary: Resolve dispute
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [resolutionType]
+              properties:
+                resolutionType:
+                  type: string
+                  enum: [release, refund, split, more_evidence]
+                resolutionSummary:
+                  type: string
+      responses:
+        '200':
+          description: Dispute resolved
+  /admin/risk/signals:
+    get:
+      tags: [Admin]
+      summary: List risk signals
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Risk signal list
+  /admin/audit-logs:
+    get:
+      tags: [Admin]
+      summary: List audit logs
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - in: query
+          name: resourceType
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Audit log list
+  /admin/payments/reconciliation:
+    get:
+      tags: [Admin]
+      summary: List reconciliation runs and exceptions
+      responses:
+        '200':
+          description: Reconciliation report

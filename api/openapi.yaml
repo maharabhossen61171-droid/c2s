@@ -1,0 +1,81 @@
+openapi: 3.0.3
+info:
+  title: C2S API
+  version: 1.0.0
+  description: Content Creator to Sponsor platform API
+servers:
+  - url: https://api.c2s.example.com/api/v1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+            refreshToken:
+              type: string
+            expiresIn:
+              type: integer
+paths:
+  /auth/login:
+    post:
+      summary: Login user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+  /campaigns:
+    get:
+      summary: List campaigns
+      tags: [Campaigns]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Campaign list
+    post:
+      summary: Create campaign
+      tags: [Campaigns]
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Campaign created
+  /creators/search:
+    get:
+      summary: Search creators
+      tags: [Creators]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Creator search results
