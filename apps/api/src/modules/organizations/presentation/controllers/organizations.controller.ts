@@ -13,7 +13,7 @@ export class OrganizationsController {
   @ApiBody({ type: CreateOrganizationDto })
   @Post()
   create(@Body() body: CreateOrganizationDto, @CurrentUserId() userId: string) {
-    return this.organizationsService.create(userId, body);
+    return this.organizationsService.create(userId, body as unknown as Record<string, unknown>);
   }
 
   @ApiOperation({ summary: 'Get organization' })
