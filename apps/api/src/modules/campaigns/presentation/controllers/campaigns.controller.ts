@@ -26,7 +26,7 @@ export class CampaignsController {
   @ApiQuery({ name: 'pageSize', required: false })
   @Get()
   list(@Query() query: PaginationQueryDto) {
-    return this.campaignsService.list(query as unknown as Record<string, unknown>);
+    return this.campaignsService.list(query as unknown as any);
   }
 
   @ApiOperation({ summary: 'Get campaign' })

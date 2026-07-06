@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AgenciesService {
-  create(payload: Record<string, unknown>) {
+  create(payload: any) {
     return { success: true, action: 'createAgencyProfile', payload };
   }
 
-  update(payload: Record<string, unknown>) {
+  update(payload: any) {
     return { success: true, action: 'updateAgencyProfile', payload };
   }
 

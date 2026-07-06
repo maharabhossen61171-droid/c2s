@@ -17,7 +17,7 @@ export class MessagingController {
 
   @ApiOperation({ summary: 'Create conversation' })
   @Post()
-  create(@Body() body: Record<string, unknown>) {
+  create(@Body() body: any) {
     return this.messagingService.create(body);
   }
 

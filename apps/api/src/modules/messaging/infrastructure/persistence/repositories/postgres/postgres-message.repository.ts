@@ -15,11 +15,11 @@ export class PostgresMessageRepository implements MessageRepository {
     return this.db.query('SELECT * FROM messages WHERE conversation_id = $1 ORDER BY sent_at DESC LIMIT 50', [conversationId]);
   }
 
-  async createConversation(payload: Record<string, unknown>): Promise<unknown> {
+  async createConversation(payload: any): Promise<unknown> {
     return { id: 'generated-conversation-id', ...payload };
   }
 
-  async createMessage(payload: Record<string, unknown>): Promise<unknown> {
+  async createMessage(payload: any): Promise<unknown> {
     return { id: 'generated-message-id', ...payload };
   }
 }

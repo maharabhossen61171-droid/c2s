@@ -6,7 +6,7 @@ export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Post('upload-intent')
-  createUploadIntent(@Body() body: Record<string, unknown>) {
+  createUploadIntent(@Body() body: any) {
     return this.filesService.createUploadIntent(body);
   }
 }

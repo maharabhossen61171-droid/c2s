@@ -14,7 +14,7 @@ export class MessagingService {
     return { success: true, data: { items } };
   }
 
-  async create(payload: Record<string, unknown>) {
+  async create(payload: any) {
     const conversation = await this.messageRepository.createConversation(payload);
     return { success: true, action: 'createConversation', data: conversation };
   }
@@ -24,7 +24,7 @@ export class MessagingService {
     return { success: true, data: { conversationId: id, items } };
   }
 
-  async send(id: string, payload: Record<string, unknown>) {
+  async send(id: string, payload: any) {
     const message = await this.messageRepository.createMessage({ conversationId: id, ...payload });
     return { success: true, action: 'sendMessage', data: message };
   }

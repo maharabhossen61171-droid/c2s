@@ -16,16 +16,16 @@ export class PostgresCreatorRepository implements CreatorRepository {
     return rows[0] ?? null;
   }
 
-  async search(filters: Record<string, unknown>): Promise<unknown[]> {
+  async search(filters: any): Promise<unknown[]> {
     void filters;
     return this.db.query('SELECT * FROM creators LIMIT 20');
   }
 
-  async create(payload: Record<string, unknown>): Promise<unknown> {
+  async create(payload: any): Promise<unknown> {
     return { id: 'generated-creator-id', ...payload };
   }
 
-  async updateByUserId(userId: string, payload: Record<string, unknown>): Promise<unknown> {
+  async updateByUserId(userId: string, payload: any): Promise<unknown> {
     return { userId, ...payload };
   }
 }

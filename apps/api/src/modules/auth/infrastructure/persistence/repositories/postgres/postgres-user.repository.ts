@@ -16,7 +16,7 @@ export class PostgresUserRepository implements UserRepository {
     return rows[0] ?? null;
   }
 
-  async create(payload: Record<string, unknown>): Promise<unknown> {
+  async create(payload: any): Promise<unknown> {
     return { id: 'generated-user-id', ...payload };
   }
 }

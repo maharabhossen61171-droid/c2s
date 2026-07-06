@@ -9,12 +9,12 @@ export class CampaignsService {
     private readonly campaignRepository: CampaignRepository,
   ) {}
 
-  async create(payload: Record<string, unknown>) {
+  async create(payload: any) {
     const campaign = await this.campaignRepository.create(payload);
     return { success: true, action: 'createCampaign', data: campaign };
   }
 
-  async list(query: Record<string, unknown>) {
+  async list(query: any) {
     const items = await this.campaignRepository.list(query);
     return { success: true, data: { items, query } };
   }
@@ -24,7 +24,7 @@ export class CampaignsService {
     return { success: true, data: campaign };
   }
 
-  async update(id: string, payload: Record<string, unknown>) {
+  async update(id: string, payload: any) {
     const campaign = await this.campaignRepository.update(id, payload);
     return { success: true, data: campaign };
   }

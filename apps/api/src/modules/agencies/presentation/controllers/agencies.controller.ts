@@ -6,12 +6,12 @@ export class AgenciesController {
   constructor(private readonly agenciesService: AgenciesService) {}
 
   @Post('agencies/profile')
-  create(@Body() body: Record<string, unknown>) {
+  create(@Body() body: any) {
     return this.agenciesService.create(body);
   }
 
   @Patch('agencies/profile')
-  update(@Body() body: Record<string, unknown>) {
+  update(@Body() body: any) {
     return this.agenciesService.update(body);
   }
 

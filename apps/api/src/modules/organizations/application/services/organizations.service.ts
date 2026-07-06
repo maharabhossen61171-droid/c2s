@@ -9,7 +9,7 @@ export class OrganizationsService {
     private readonly organizationRepository: OrganizationRepository,
   ) {}
 
-  async create(userId: string, payload: Record<string, unknown>) {
+  async create(userId: string, payload: any) {
     const organization = await this.organizationRepository.create({ createdBy: userId, ...payload });
     return { success: true, action: 'createOrganization', data: organization };
   }
@@ -19,7 +19,7 @@ export class OrganizationsService {
     return { success: true, data: organization };
   }
 
-  async update(id: string, payload: Record<string, unknown>) {
+  async update(id: string, payload: any) {
     const organization = await this.organizationRepository.update(id, payload);
     return { success: true, data: organization };
   }

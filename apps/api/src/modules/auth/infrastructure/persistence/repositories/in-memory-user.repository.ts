@@ -9,7 +9,7 @@ export class InMemoryUserRepository implements UserRepository {
     return { email };
   }
 
-  async create(payload: Record<string, unknown>): Promise<unknown> {
+  async create(payload: any): Promise<unknown> {
     return { id: 'user-id', ...payload };
   }
 }

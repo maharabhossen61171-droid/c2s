@@ -6,12 +6,12 @@ export class SponsorsController {
   constructor(private readonly sponsorsService: SponsorsService) {}
 
   @Post()
-  create(@Body() body: Record<string, unknown>) {
+  create(@Body() body: any) {
     return this.sponsorsService.create(body);
   }
 
   @Patch()
-  update(@Body() body: Record<string, unknown>) {
+  update(@Body() body: any) {
     return this.sponsorsService.update(body);
   }
 }

@@ -1,6 +1,6 @@
 export interface PaymentRepository {
   findById(id: string): Promise<unknown | null>;
-  list(filters: Record<string, unknown>): Promise<unknown[]>;
-  create(payload: Record<string, unknown>): Promise<unknown>;
-  update(id: string, payload: Record<string, unknown>): Promise<unknown>;
+  list(filters: any): Promise<unknown[]>;
+  create(payload: any): Promise<unknown>;
+  update(id: string, payload: any): Promise<unknown>;
 }

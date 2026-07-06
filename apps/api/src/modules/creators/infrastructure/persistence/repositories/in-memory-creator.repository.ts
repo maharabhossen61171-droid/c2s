@@ -9,15 +9,15 @@ export class InMemoryCreatorRepository implements CreatorRepository {
     return { userId };
   }
 
-  async search(filters: Record<string, unknown>): Promise<unknown[]> {
+  async search(filters: any): Promise<unknown[]> {
     return [{ filters }];
   }
 
-  async create(payload: Record<string, unknown>): Promise<unknown> {
+  async create(payload: any): Promise<unknown> {
     return { id: 'creator-id', ...payload };
   }
 
-  async updateByUserId(userId: string, payload: Record<string, unknown>): Promise<unknown> {
+  async updateByUserId(userId: string, payload: any): Promise<unknown> {
     return { userId, ...payload };
   }
 }

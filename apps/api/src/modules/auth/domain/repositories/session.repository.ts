@@ -1,5 +1,5 @@
 export interface SessionRepository {
-  create(payload: Record<string, unknown>): Promise<unknown>;
+  create(payload: any): Promise<unknown>;
   findById(id: string): Promise<unknown | null>;
   revoke(id: string): Promise<void>;
 }

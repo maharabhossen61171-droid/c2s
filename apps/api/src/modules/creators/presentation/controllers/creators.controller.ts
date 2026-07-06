@@ -27,7 +27,7 @@ export class CreatorsController {
   @ApiQuery({ name: 'pageSize', required: false })
   @Get('search')
   search(@Query() query: PaginationQueryDto) {
-    return this.creatorsService.search(query as unknown as Record<string, unknown>);
+    return this.creatorsService.search(query as unknown as any);
   }
 
   @ApiOperation({ summary: 'Get creator by id' })

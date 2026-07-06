@@ -11,11 +11,11 @@ export class PostgresOrganizationRepository implements OrganizationRepository {
     return rows[0] ?? null;
   }
 
-  async create(payload: Record<string, unknown>): Promise<unknown> {
+  async create(payload: any): Promise<unknown> {
     return { id: 'generated-org-id', ...payload };
   }
 
-  async update(id: string, payload: Record<string, unknown>): Promise<unknown> {
+  async update(id: string, payload: any): Promise<unknown> {
     return { id, ...payload };
   }
 }

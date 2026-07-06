@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class FilesService {
-  createUploadIntent(payload: Record<string, unknown>) {
+  createUploadIntent(payload: any) {
     return { success: true, action: 'createUploadIntent', payload };
   }
 }

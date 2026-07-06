@@ -9,7 +9,7 @@ export class NotificationsService {
     private readonly notificationRepository: NotificationRepository,
   ) {}
 
-  async list(userId: string, filters: Record<string, unknown> = {}) {
+  async list(userId: string, filters: any = {}) {
     const items = await this.notificationRepository.listByUserId(userId, filters);
     return { success: true, data: { items, filters } };
   }
@@ -18,7 +18,7 @@ export class NotificationsService {
     return { success: true, data: { userId, items: [] } };
   }
 
-  async updatePreferences(userId: string, payload: Record<string, unknown>) {
+  async updatePreferences(userId: string, payload: any) {
     const preferences = await this.notificationRepository.updatePreferences(userId, payload);
     return { success: true, data: preferences };
   }

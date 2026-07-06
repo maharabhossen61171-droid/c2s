@@ -9,12 +9,12 @@ export class CreatorsService {
     private readonly creatorRepository: CreatorRepository,
   ) {}
 
-  async createProfile(userId: string, payload: Record<string, unknown>) {
+  async createProfile(userId: string, payload: any) {
     const creator = await this.creatorRepository.create({ userId, ...payload });
     return { success: true, action: 'createCreatorProfile', data: creator };
   }
 
-  async search(query: Record<string, unknown>) {
+  async search(query: any) {
     const items = await this.creatorRepository.search(query);
     return { success: true, data: { items, query } };
   }
@@ -29,7 +29,7 @@ export class CreatorsService {
     return { success: true, data: creator };
   }
 
-  async updateMine(userId: string, payload: Record<string, unknown>) {
+  async updateMine(userId: string, payload: any) {
     const creator = await this.creatorRepository.updateByUserId(userId, payload);
     return { success: true, data: creator };
   }

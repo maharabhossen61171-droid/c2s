@@ -9,7 +9,7 @@ export class AuthService {
     private readonly userRepository: UserRepository,
   ) {}
 
-  async login(payload: Record<string, unknown>) {
+  async login(payload: any) {
     const user = typeof payload.email === 'string'
       ? await this.userRepository.findByEmail(payload.email)
       : null;
@@ -17,7 +17,7 @@ export class AuthService {
     return { success: true, action: 'login', data: { user, payload } };
   }
 
-  async register(payload: Record<string, unknown>) {
+  async register(payload: any) {
     const createdUser = await this.userRepository.create(payload);
     return { success: true, action: 'register', data: createdUser };
   }

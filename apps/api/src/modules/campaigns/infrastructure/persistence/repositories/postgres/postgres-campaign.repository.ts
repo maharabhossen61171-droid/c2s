@@ -11,16 +11,16 @@ export class PostgresCampaignRepository implements CampaignRepository {
     return rows[0] ?? null;
   }
 
-  async list(filters: Record<string, unknown>): Promise<unknown[]> {
+  async list(filters: any): Promise<unknown[]> {
     void filters;
     return this.db.query('SELECT * FROM campaigns ORDER BY created_at DESC LIMIT 20');
   }
 
-  async create(payload: Record<string, unknown>): Promise<unknown> {
+  async create(payload: any): Promise<unknown> {
     return { id: 'generated-campaign-id', ...payload };
   }
 
-  async update(id: string, payload: Record<string, unknown>): Promise<unknown> {
+  async update(id: string, payload: any): Promise<unknown> {
     return { id, ...payload };
   }
 }

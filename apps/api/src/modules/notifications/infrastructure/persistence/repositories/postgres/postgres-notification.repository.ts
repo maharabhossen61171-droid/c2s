@@ -6,12 +6,12 @@ import { NotificationRepository } from '../../../../domain/repositories/notifica
 export class PostgresNotificationRepository implements NotificationRepository {
   constructor(private readonly db: DatabaseService) {}
 
-  async listByUserId(userId: string, filters?: Record<string, unknown>): Promise<unknown[]> {
+  async listByUserId(userId: string, filters?: any): Promise<unknown[]> {
     void filters;
     return this.db.query('SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50', [userId]);
   }
 
-  async updatePreferences(userId: string, payload: Record<string, unknown>): Promise<unknown> {
+  async updatePreferences(userId: string, payload: any): Promise<unknown> {
     return { userId, ...payload };
   }
 

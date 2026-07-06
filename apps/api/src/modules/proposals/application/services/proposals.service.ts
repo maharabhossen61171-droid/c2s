@@ -6,11 +6,11 @@ export class ProposalsService {
     return { success: true, data: { id } };
   }
 
-  update(id: string, payload: Record<string, unknown>) {
+  update(id: string, payload: any) {
     return { success: true, data: { id, ...payload } };
   }
 
-  negotiate(id: string, payload: Record<string, unknown>) {
+  negotiate(id: string, payload: any) {
     return { success: true, action: 'negotiateProposal', id, payload };
   }
 

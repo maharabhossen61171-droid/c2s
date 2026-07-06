@@ -11,12 +11,12 @@ export class PaymentsController {
 
   @Post('contracts/:id/escrow/fund')
   fundEscrow(@Param('id') id: string, @Body() body: FundEscrowDto) {
-    return this.paymentsService.fundEscrow(id, body as unknown as Record<string, unknown>);
+    return this.paymentsService.fundEscrow(id, body as unknown as any);
   }
 
   @Get('payments')
   list(@Query() query: PaginationQueryDto) {
-    return this.paymentsService.list(query as unknown as Record<string, unknown>);
+    return this.paymentsService.list(query as unknown as any);
   }
 
   @Get('payments/:id')

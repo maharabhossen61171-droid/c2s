@@ -9,12 +9,12 @@ export class PaymentsService {
     private readonly paymentRepository: PaymentRepository,
   ) {}
 
-  async fundEscrow(contractId: string, payload: Record<string, unknown>) {
+  async fundEscrow(contractId: string, payload: any) {
     const payment = await this.paymentRepository.create({ contractId, ...payload, type: 'escrow_fund' });
     return { success: true, action: 'fundEscrow', data: payment };
   }
 
-  async list(filters: Record<string, unknown> = {}) {
+  async list(filters: any = {}) {
     const items = await this.paymentRepository.list(filters);
     return { success: true, data: { items } };
   }

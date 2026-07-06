@@ -11,7 +11,7 @@ export class UsersController {
   }
 
   @Patch()
-  updateMe(@Body() body: Record<string, unknown>) {
+  updateMe(@Body() body: any) {
     return this.usersService.updateMe(body);
   }
 }

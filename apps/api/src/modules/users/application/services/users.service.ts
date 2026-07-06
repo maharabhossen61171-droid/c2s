@@ -6,7 +6,7 @@ export class UsersService {
     return { success: true, data: { message: 'current user profile placeholder' } };
   }
 
-  updateMe(payload: Record<string, unknown>) {
+  updateMe(payload: any) {
     return { success: true, data: payload };
   }
 }

@@ -1,4 +1,4 @@
-export function apiSuccess<T>(data: T, requestId?: string, meta?: Record<string, unknown>) {
+export function apiSuccess<T>(data: T, requestId?: string, meta?: any) {
   return {
     success: true,
     data,

@@ -15,7 +15,7 @@ export class NotificationsController {
   @ApiQuery({ name: 'pageSize', required: false })
   @Get('notifications')
   list(@CurrentUserId() userId: string, @Query() query: PaginationQueryDto) {
-    return this.notificationsService.list(userId, query as unknown as Record<string, unknown>);
+    return this.notificationsService.list(userId, query as unknown as any);
   }
 
   @ApiOperation({ summary: 'Get notification preferences' })
@@ -28,7 +28,7 @@ export class NotificationsController {
   @ApiBody({ type: UpdateNotificationPreferencesDto })
   @Patch('notification-preferences')
   updatePreferences(@CurrentUserId() userId: string, @Body() body: UpdateNotificationPreferencesDto) {
-    return this.notificationsService.updatePreferences(userId, body as unknown as Record<string, unknown>);
+    return this.notificationsService.updatePreferences(userId, body as unknown as any);
   }
 
   @ApiOperation({ summary: 'Mark all notifications as read' })

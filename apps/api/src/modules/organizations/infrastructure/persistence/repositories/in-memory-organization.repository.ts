@@ -5,11 +5,11 @@ export class InMemoryOrganizationRepository implements OrganizationRepository {
     return { id };
   }
 
-  async create(payload: Record<string, unknown>): Promise<unknown> {
+  async create(payload: any): Promise<unknown> {
     return { id: 'org-id', ...payload };
   }
 
-  async update(id: string, payload: Record<string, unknown>): Promise<unknown> {
+  async update(id: string, payload: any): Promise<unknown> {
     return { id, ...payload };
   }
 }

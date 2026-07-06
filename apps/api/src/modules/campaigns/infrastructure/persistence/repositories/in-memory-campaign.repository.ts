@@ -5,15 +5,15 @@ export class InMemoryCampaignRepository implements CampaignRepository {
     return { id };
   }
 
-  async list(filters: Record<string, unknown>): Promise<unknown[]> {
+  async list(filters: any): Promise<unknown[]> {
     return [{ filters }];
   }
 
-  async create(payload: Record<string, unknown>): Promise<unknown> {
+  async create(payload: any): Promise<unknown> {
     return { id: 'campaign-id', ...payload };
   }
 
-  async update(id: string, payload: Record<string, unknown>): Promise<unknown> {
+  async update(id: string, payload: any): Promise<unknown> {
     return { id, ...payload };
   }
 }
