@@ -28,7 +28,7 @@ export class NotificationsController {
   @ApiBody({ type: UpdateNotificationPreferencesDto })
   @Patch('notification-preferences')
   updatePreferences(@CurrentUserId() userId: string, @Body() body: UpdateNotificationPreferencesDto) {
-    return this.notificationsService.updatePreferences(userId, body);
+    return this.notificationsService.updatePreferences(userId, body as unknown as Record<string, unknown>);
   }
 
   @ApiOperation({ summary: 'Mark all notifications as read' })
